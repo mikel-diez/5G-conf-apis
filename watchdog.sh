@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE_PATH="/home/arraiz/aa_REPOS/PROJ_TKNIKA/TKNIKA_Robotica/test.env"
+FILE_PATH="ruta al .env"
 SCRIPT_TO_RUN="update_env.sh"
 
 # Monitorear cambios en el archivo

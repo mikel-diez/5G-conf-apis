@@ -1,8 +1,20 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, HTMLResponse, Body, Request
 from controllers.enviroment_controller import FileController  
+import Jinja2Templates
 import json
 ENV_FILE = "conf_files/test.env"
 app = FastAPI()
+
+
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/main", response_class=HTMLResponse)
+def get_main(request: Request):
+    controller = FileController(ENV_FILE)  
+    json_info = controller.file_to_dict()
+    return templates.TemplateResponse("main.html", {"request": json_info})
 
 @app.get("/get-conf")
 def get_configuration():
