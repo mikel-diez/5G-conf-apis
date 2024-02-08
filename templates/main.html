@@ -1,11 +1,106 @@
-<!-- templates/main.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>5G conf</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Radio 5G</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+   <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 80%; /* Reduce el ancho máximo del contenedor */
+            margin-top: 20px;
+            padding: 20px; /* Añade un poco de padding alrededor de la tabla */
+        }
+        table {
+            font-size: 1rem; /* Reduce el tamaño de la fuente de la tabla */
+            table-layout: fixed;
+        }
+        .table-container {
+            overflow-x: auto; /* Asegura que la tabla sea scrollable horizontalmente */
+            margin: 50px 0; /* Añade márgenes arriba y abajo de la tabla */
+            padding: 100px 0; /* Ajusta según sea necesario */
+            margin-bottom: 20px; 
+        }
+        .table-responsive {
+            max-height:800px;
+        }
+        #apply-config {
+            width: 100%; /* Opcional: Ajusta el botón para que ocupe todo el ancho del contenedor */
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome</h1>
-    <p>{{ mensaje }}</p>
+    <div class="container">
+        <h1 class="text-center">5G Radio Configuration</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover shadow">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Clave</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Input Text</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for clave, valor in json_data.items() %}
+                    <tr>
+                        <td>{{ clave }}</td>
+                        <td>{{ valor }}</td>
+                        <td>
+                            <input type="text" class="form-control" name="{{ clave }}" value="{{ valor }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button id="apply-config" class="btn btn-primary">Apply Config</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#apply-config").click(function() {
+        // Mostrar mensaje de confirmación
+        var confirmado = confirm("¿Estás seguro de que quieres cambiar la configuración?");
+        if (confirmado) {
+            // El usuario hizo clic en "Aceptar", proceder con la solicitud AJAX
+            var config = {};
+            $("input[type='text']").each(function() {
+                config[$(this).attr("name")] = $(this).val();
+            });
+            $.ajax({
+                type: "POST",
+                url: "/update-config", // Ajusta esta URL a tu endpoint de API
+                contentType: "application/json",
+                data: JSON.stringify(config),
+                success: function(response) {
+                    // Opcional: manejar la redirección aquí si la respuesta incluye una URL
+                    console.log("Configuración aplicada:", response);
+                    if(response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+                },
+                error: function(error) {
+                    console.error("Error al aplicar configuración:", error);
+                }
+            });
+        } else {
+            // El usuario hizo clic en "Cancelar", no hacer nada
+            console.log("Actualización de configuración cancelada por el usuario.");
+        }
+            });
+        });
+    
+    </script>
+ <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>

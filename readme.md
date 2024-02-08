@@ -1,2 +1,1 @@
 curl -X POST "http://localhost:8000/update-conf" \\n     -H "Content-Type: application/json" \\n     -d "{\"PARAM_A\": \"40\", \"PARAM_NEW\": \"ignored\"}"
- 6860  git remote add origin git@github.com:mikel-diez/5G-conf-apis.git
