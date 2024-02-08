@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Body, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from controllers.enviroment_controller import FileController  
-
+from controllers.container_controller import check_containers
 from pydantic import BaseModel
 from variables.file_locations import ENV_FILE
 import json
@@ -35,12 +35,10 @@ def get_specific_configuration(key: str):
     return controller.get_value(key)
 
 
-@app.post("/status")
-async def actualizar_status(contenedores: List[Contenedor]):
-    for contenedor in contenedores:
-        # Aquí podrías procesar cada contenedor según necesites
-        print(f"Contenedor: {contenedor.nombre}, Estado: {contenedor.estado}")
-    return {"mensaje": "Status de contenedores actualizado"}
+@app.get("/status")
+def get_container_status():
+    containers_json = check_containers()
+    return containers_json
 
 @app.post("/update-config")
 def update_configuration(config_updates: dict = Body(...)):
