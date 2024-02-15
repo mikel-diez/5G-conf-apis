@@ -9,7 +9,7 @@ class FileController:
 
     def file_to_dict(self) -> dict:
         data = {}
-        pattern = re.compile(r'^\s*([^#=\s]+)\s*=\s*(.+?)\s*$')  # Patrón para "parametro = valor"
+        pattern = re.compile(r'^\s*([^#=\s]+)\s*=\s*(.+?)\s*$') 
         with open(self.filename, 'r') as file:
             for line in file:
                 match = pattern.match(line)
@@ -55,9 +55,3 @@ class FileController:
         data = self.file_to_dict()
         return json.dumps(data)
     
-
-# controller = FileController('/home/arraiz/aa_REPOS/PROJ_TKNIKA/TKNIKA_Robotica/API/conf_files/.env')
-# print(controller.to_json())
-# #print(controller.get_value("PARAM_C"))
-# #print(controller.set_value("PARAM_C",20))
-# print(controller.to_json())
