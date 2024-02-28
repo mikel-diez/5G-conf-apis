@@ -8,7 +8,7 @@ class YamlToJsonFileController:
     def yaml_to_json(self) -> str:
         with open(self.filename, 'r') as file:
             yaml_data = yaml.safe_load(file)
-            print(yaml_data)
+          
         return json.dumps(yaml_data, indent=2)
     
 

@@ -24,11 +24,6 @@ templates = Jinja2Templates(directory="templates")
 
 deployment_status_controller = DeploymentStatusController()
 
-# @app.get("/", response_class=HTMLResponse)
-# def get_main(request: Request):
-#     controller = FileController(ENV_FILE)  
-#     json_data = controller.file_to_dict()
-#     return templates.TemplateResponse("main.html",  {"request": request, "json_data": json_data})
 
 @app.get("/", response_class=HTMLResponse)
 def get_main(request: Request):
