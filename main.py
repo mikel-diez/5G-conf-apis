@@ -2,10 +2,11 @@ from fastapi import FastAPI, HTTPException, Body, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from controllers.enviroment_controller import FileController  
+from controllers.yml_controller import YamlToJsonFileController
 from controllers.container_controller import check_containers
 from controllers.deployment_controller import DeploymentStatusController
 from pydantic import BaseModel
-from variables.file_locations import ENV_FILE
+from variables.file_locations import ENV_FILE, YML_FILE
 import json
 app = FastAPI()
 
@@ -23,11 +24,18 @@ templates = Jinja2Templates(directory="templates")
 
 deployment_status_controller = DeploymentStatusController()
 
+# @app.get("/", response_class=HTMLResponse)
+# def get_main(request: Request):
+#     controller = FileController(ENV_FILE)  
+#     json_data = controller.file_to_dict()
+#     return templates.TemplateResponse("main.html",  {"request": request, "json_data": json_data})
+
 @app.get("/", response_class=HTMLResponse)
 def get_main(request: Request):
-    controller = FileController(ENV_FILE)  
-    json_data = controller.file_to_dict()
-    return templates.TemplateResponse("main.html",  {"request": request, "json_data": json_data})
+    controller = YamlToJsonFileController(YML_FILE)  
+    json_data = controller.yaml_to_json()
+    return templates.TemplateResponse("main.html",  {"request": request, "json_data": json.loads(json_data)})
+
 
 @app.get("/get-conf")
 def get_configuration():

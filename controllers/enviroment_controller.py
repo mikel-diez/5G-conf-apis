@@ -26,7 +26,7 @@ class FileController:
         return data
 
 
-   
+
     def get_value(self, search_key: str):
             data = self.file_to_dict()
             if search_key in data:

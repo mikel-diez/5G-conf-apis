@@ -63,6 +63,12 @@
             z-index: 1000;
             margin: -60px 0 0 -60px;
         }
+        .category-cell {
+            width: 100px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
 
         @-webkit-keyframes spin {
             0% { -webkit-transform: rotate(0deg); }
@@ -83,26 +89,24 @@
         <h1 class="text-center">5G Radio Configuration</h1>
         <div class="table-responsive">
             <table class="table table-bordered table-hover shadow">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">Clave</th>
-                        <th scope="col">Valor</th>
-                        <th scope="col">Input Text</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for clave, valor in json_data.items() %}
-                    <tr>
-                        <td>{{ clave }}</td>
-                        <td>{{ valor }}</td>
-                        <td>
-                            <input type="text" class="form-control" name="{{ clave }}" value="{{ valor }}">
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% for category, settings in json_data.items() %}
+                <tr>
+                    <td class="category-cell">{{ category }}</td>
+                    <td>
+                        <table>
+                            {% for key, value in settings.items() %}
+                            <tr>
+                                <td style=" font-weight: bold; " >{{ key }}</td>
+                                <td>{{ value }}</td>
+                                <td>
+                                    <input type="text" class="form-control" name="{{ category }}_{{ key }}" value="{{ value }}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %} 
         <button id="apply-config" class="btn btn-primary">Apply Config</button>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
