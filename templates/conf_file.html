@@ -60,7 +60,7 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            z-index: 1000;
+            z-index: 1001;
             margin: -60px 0 0 -60px;
         }
         .category-cell {
@@ -82,11 +82,9 @@
     </style>
 </head>
 <body>
-    <div class="overlay" id="overlay">
-        <div class="loader"></div>
-      </div>
-    <div class="container">
-        <h1 class="text-center">5G Radio Configuration</h1>
+    <h1 class="text-center">5G Radio Configuration</h1>
+    <input type="text" id="filename" name="filename"  value="{{ filename[:-4] }}">
+
         <div class="table-responsive">
             <table class="table table-bordered table-hover shadow">
                 {% for category, settings in json_data.items() %}
@@ -116,36 +114,12 @@
         // Mostrar mensaje de confirmación
         var confirmado = confirm("¿Estás seguro de que quieres cambiar la configuración?");
         if (confirmado) {
-            // El usuario hizo clic en "Aceptar", proceder con la solicitud AJAX
-            function fetchStatus() {
-                $('#overlay').show(); // Muestra el indicador y oscurece el fondo
-                $.ajax({
-                    url: 'http://localhost:8000/deploymentstatus',
-                    type: 'GET',
-                    success: function(response) {
-                    console.log(response);
-                    $('#statusContainer').text(response.status);
-                    if(response.status === "OK") {
-                        $('#overlay').hide(); // Oculta el indicador y el fondo oscuro
-                        if (intervalId) {
-                            clearInterval(intervalId);
-                        }
-                    }
-                    },
-                    error: function(error) {
-                    console.log('Error:', error);
-                    $('#overlay').hide(); // Asegúrate de ocultar el indicador y el fondo oscuro también en caso de error
-                    }
-                });
-                }
-            
-                // Ejecuta fetchStatus cada 5 segundos
-            intervalId = setInterval(fetchStatus, 250);
-            console.log(intervalId)
             var config = {};
             $("input[type='text']").each(function() {
                 config[$(this).attr("name")] = $(this).val();
             });
+            var filename = $("#filename").val() + '.yml';
+            config['filename'] = filename;
             $.ajax({
                 type: "POST",
                 url: "/update-config", // Ajusta esta URL a tu endpoint de API

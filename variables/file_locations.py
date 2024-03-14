@@ -1,3 +1,5 @@
-ENV_FILE = "/home/arraiz/aa_REPOS/PROJ_TKNIKA/TKNIKA_Robotica/API/conf_files/.env"
-YML_FILE = "/home/arraiz/aa_REPOS/PROJ_TKNIKA/TKNIKA_Robotica/API/conf_files/config.yml"
-DEV_ENV_FILE = ""
+import os
+home_directory = os.path.expanduser('~')
+PROJ_PATH = home_directory+"/Documents/0_gNB/somo5g"
+CONF_FILES = PROJ_PATH+"/configs/"
+COMPOSE_FILE = PROJ_PATH+"/docker/docker-compose.yml"

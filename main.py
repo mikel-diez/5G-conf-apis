@@ -1,12 +1,12 @@
 from fastapi import FastAPI, HTTPException, Body, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse 
+
 from fastapi.templating import Jinja2Templates
-from controllers.enviroment_controller import FileController  
 from controllers.yml_controller import YamlToJsonFileController
-from controllers.container_controller import check_containers
+from controllers.container_controller import DockerComposeConfigReader
 from controllers.deployment_controller import DeploymentStatusController
 from pydantic import BaseModel
-from variables.file_locations import ENV_FILE, YML_FILE
+from variables.file_locations import COMPOSE_FILE, CONF_FILES
 import json
 app = FastAPI()
 
@@ -25,22 +25,34 @@ templates = Jinja2Templates(directory="templates")
 deployment_status_controller = DeploymentStatusController()
 
 
+
 @app.get("/", response_class=HTMLResponse)
-def get_main(request: Request):
-    controller = YamlToJsonFileController(YML_FILE)  
-    json_data = controller.yaml_to_json()
-    return templates.TemplateResponse("main.html",  {"request": request, "json_data": json.loads(json_data)})
+async def get_main(request: Request):
+    controller = YamlToJsonFileController(CONF_FILES)  
+    compose_controller = DockerComposeConfigReader(COMPOSE_FILE)
+    current_yaml = compose_controller.get_gnb_config_file()
+    current_yaml = current_yaml.split('/')[-1]
+    print(current_yaml)
+    yaml_files = controller.get_yaml_files()
+    print(yaml_files)
+    return templates.TemplateResponse("selector.html", {
+    "request": request, 
+    "yaml_files": yaml_files, 
+    "current_yaml": current_yaml  
+})
 
 
-@app.get("/get-conf")
-def get_configuration():
-    controller = FileController(ENV_FILE)  
-    return json.loads(controller.to_json())
+@app.get("/config/{filename}", response_class=HTMLResponse)
+async def get_main(request: Request, filename: str):
+    controller = YamlToJsonFileController(CONF_FILES)  
+    json_data = controller.yaml_to_json(filename)
+    print(filename)
+    return templates.TemplateResponse("conf_file.html", {
+    "request": request, 
+    "json_data": json.loads(json_data),
+    "filename":filename
+})
 
-@app.get("/get-conf/{key}")
-def get_specific_configuration(key: str):
-    controller = FileController(ENV_FILE)
-    return controller.get_value(key)
 
 
 @app.get("/containerstatus")
@@ -58,12 +70,7 @@ def get_container_status():
 
 @app.post("/update-config")
 def update_configuration(config_updates: dict = Body(...)):
-    controller = FileController(ENV_FILE)
-    try:
-        controller.update_config(config_updates)
-        return JSONResponse({"status":"pending"})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    print(config_updates)
 
 
 

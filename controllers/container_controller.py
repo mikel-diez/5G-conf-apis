@@ -1,15 +1,20 @@
-import json
-from fastapi import HTTPException
-import subprocess
-import re
+import yaml
+from variables.file_locations import COMPOSE_FILE
 
+class DockerComposeConfigReader:
+    def __init__(self, docker_compose_path):
+        self.docker_compose_path = docker_compose_path
 
-
-def check_containers():
-    comando = ["docker", "ps", "-a", "--format", "{{.Names}}\t{{.Status}}"]
-    resultado = subprocess.run(comando, capture_output=True, text=True)
-    lineas = resultado.stdout.strip().split("\n")
-    contenedores_dict = [{"nombre": linea.split("\t")[0], "estado": linea.split("\t")[1]} for linea in lineas]
-    print(contenedores_dict)
-    return (contenedores_dict)
-
+    def get_gnb_config_file(self):
+        with open(self.docker_compose_path, 'r') as file:
+            docker_compose_content = yaml.safe_load(file)
+        
+        # Asegúrate de que las claves 'configs' y 'gnb_config.yml' existan
+        if 'configs' in docker_compose_content and 'gnb_config.yml' in docker_compose_content['configs']:
+            config_path = docker_compose_content['configs']['gnb_config.yml'].get('file', None)
+            if config_path is not None:
+                # Extrae el valor predeterminado si está presente
+                if config_path.startswith('${') and ':-' in config_path:
+                    return config_path.split(':-')[1].rstrip('}')
+                return config_path
+        return None
