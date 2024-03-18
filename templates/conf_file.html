@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración de Radio 5G</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script>
+        var configData = {{ json_data|tojson }};
+    </script>
    <style>
         body {
             background-color: #f8f9fa;
@@ -15,25 +18,25 @@
             margin: 0;
         }
         .container {
-            max-width: 80%; /* Reduce el ancho máximo del contenedor */
+            max-width: 80%;
             margin-top: 20px;
-            padding: 20px; /* Añade un poco de padding alrededor de la tabla */
+            padding: 20px;
         }
         table {
-            font-size: 1rem; /* Reduce el tamaño de la fuente de la tabla */
+            font-size: 1rem; 
             table-layout: fixed;
         }
         .table-container {
-            overflow-x: auto; /* Asegura que la tabla sea scrollable horizontalmente */
-            margin: 50px 0; /* Añade márgenes arriba y abajo de la tabla */
-            padding: 100px 0; /* Ajusta según sea necesario */
+            overflow-x: auto; 
+            margin: 50px 0;
+            padding: 100px 0; 
             margin-bottom: 20px; 
         }
         .table-responsive {
             max-height:800px;
         }
         #apply-config {
-            width: 100%; /* Opcional: Ajusta el botón para que ocupe todo el ancho del contenedor */
+            width: 100%; 
         }
         .overlay {
             display: none;
@@ -87,7 +90,7 @@
 
         <div class="table-responsive">
             <table class="table table-bordered table-hover shadow">
-                {% for category, settings in json_data.items() %}
+                <!-- {% for category, settings in json_data.items() %}
                 <tr>
                     <td class="category-cell">{{ category }}</td>
                     <td>
@@ -97,36 +100,60 @@
                                 <td style=" font-weight: bold; " >{{ key }}</td>
                                 <td>{{ value }}</td>
                                 <td>
-                                    <input type="text" class="form-control" name="{{ category }}_{{ key }}" value="{{ value }}">
+                                    <input type="text" conf="true" alt="{{ category }}" class="form-control" name="{{ key }}" value="{{ value }}">
                                 </td>
                             </tr>
                             {% endfor %}
                         </table>
                     </td>
                 </tr>
-                {% endfor %} 
+                {% endfor %}  -->
+
+
+                {% from 'macros.html' import render_table %}
+
+                {% for category, settings in json_data.items() %}
+                <tr>
+                    <td class="category-cell">{{ category }}</td>
+                    <td>
+
+                        {{ render_table(settings, category + '.') }}
+                    </td>
+                </tr>
+                {% endfor %}
         <button id="apply-config" class="btn btn-primary">Apply Config</button>
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script>
         $(document).ready(function() {
             $("#apply-config").click(function() {
-        // Mostrar mensaje de confirmación
+        
         var confirmado = confirm("¿Estás seguro de que quieres cambiar la configuración?");
         if (confirmado) {
-            var config = {};
-            $("input[type='text']").each(function() {
-                config[$(this).attr("name")] = $(this).val();
+            var configData = {{ json_data|tojson }};
+
+            $('input[conf="true"]').each(function() {
+                current = configData
+
+                var new_value = $(this).val()
+                console.log(new_value);
+                var path = $(this).attr('name').split('.');
+                for (let i = 0; i < path.length - 1; i++) {
+                    current = current[path[i]] = current[path[i]] || {};
+                }
+                current[path[path.length - 1]] = isNaN(Number(new_value)) ? new_value : Number(new_value);
+               
             });
-            var filename = $("#filename").val() + '.yml';
-            config['filename'] = filename;
+            console.log(configData);
+            
+            var filename = $("#filename").val()
             $.ajax({
                 type: "POST",
-                url: "/update-config", // Ajusta esta URL a tu endpoint de API
+                url: "/update-config/"+filename, 
                 contentType: "application/json",
-                data: JSON.stringify(config),
+                data: JSON.stringify(configData),
                 success: function(response) {
-                    // Opcional: manejar la redirección aquí si la respuesta incluye una URL
+                   
                     console.log("Configuración aplicada:", response);
                 },
                 error: function(error) {

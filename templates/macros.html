@@ -1,0 +1,18 @@
+{% macro render_table(data, prefix='') %}
+<table>
+    {% for key, value in data.items() %}
+        <tr>
+            <td style="font-weight: bold;">{{ key }}</td>
+            <td>
+                {% if value is mapping %}
+                    {# Concatena la clave actual con las anteriores para mantener la jerarquía #}
+                    {{ render_table(value, prefix + key + '.') }}
+                {% else %}
+                    {# Crea el atributo name usando la jerarquía de claves #}
+                    <input type="text" conf="true" class="form-control" name="{{ prefix + key }}" value="{{ value }}">
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+{% endmacro %}

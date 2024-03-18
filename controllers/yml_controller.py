@@ -15,4 +15,16 @@ class YamlToJsonFileController:
 
     def get_yaml_files(self):
         return [file for file in os.listdir(self.directory) if file.endswith('.yml')]
+    
+    def json_to_yml(self, filename: str, json_data: dict) -> str:
+        # Asegurarse de que el nombre del archivo termina con '.yml'
+        if not filename.endswith('.yml'):
+            filename += '.yml'
+
+        filepath = os.path.join(self.directory, filename)
+        with open(filepath, 'w') as file:
+            yaml.dump(json_data, file, allow_unicode=True)
+        
+        return f"JSON data has been successfully converted to {filename}"
+
 

@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from controllers.yml_controller import YamlToJsonFileController
 from controllers.container_controller import DockerComposeConfigReader
 from controllers.deployment_controller import DeploymentStatusController
+from controllers.gnb_controller import GnbController
 from pydantic import BaseModel
 from variables.file_locations import COMPOSE_FILE, CONF_FILES
 import json
@@ -46,6 +47,7 @@ async def get_main(request: Request):
 async def get_main(request: Request, filename: str):
     controller = YamlToJsonFileController(CONF_FILES)  
     json_data = controller.yaml_to_json(filename)
+    print(json_data)
     print(filename)
     return templates.TemplateResponse("conf_file.html", {
     "request": request, 
@@ -68,11 +70,17 @@ def get_container_status():
     return {"status": status}
 
 
-@app.post("/update-config")
-def update_configuration(config_updates: dict = Body(...)):
+@app.post("/update-config/{filename}")
+async def update_configuration(request: Request,filename: str,config_updates: dict = Body(...)):
     print(config_updates)
+    print(filename)
+    controller = YamlToJsonFileController(CONF_FILES)  
+    yml_conf=controller.json_to_yml(filename=filename,json_data=config_updates)
+    gnb_controller = GnbController()
+    gnb_controller.execute_gnb_script("scripts/rungnb.sh")
 
 
+    
 
 @app.post("/completed")
 async def completed(item: Item):
