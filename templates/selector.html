@@ -55,32 +55,35 @@
             Made with <span style="color: red;">❤️</span> by Teleco Communications Dept.
         </a>
     </div>
+    <div class="header-message">
+        Made with ❤️ by Teleco Communications Dept.
+    </div>
 
     <div class="container">
         <h1>YAML File Picker</h1>
-        <select id="filePicker" onchange="redirectToFile(this.value);">
+        <select id="filePicker">
             <option value="" disabled {% if not current_yaml %}selected{% endif %}>Select your option</option>
             {% for file in yaml_files %}
                 <option value="{{ file }}" {% if file == current_yaml %}selected style="background-color: green;"{% endif %}>{{ file }}</option>
             {% endfor %}
         </select>
+        <button id="redirectButton" class="btn btn-primary" >Go to Config</button>
     </div>
     <div class="logo-container">
         <img src="{{ url_for('static', path='logo.png') }}" alt="logo">
     </div>
-    <div class="header-message">
-        Made with ❤️ by Teleco Communications Dept.
-    </div>
-
     <script>
-        function redirectToFile(filename) {
+        document.getElementById('redirectButton').addEventListener('click', function() {
+            var filename = document.getElementById('filePicker').value;
             if(filename) {
                 const coreIp = "{{ core_ip }}"; 
                 const gnbIp = "{{ gnb_ip }}";
                 const url = `/config/${filename}?core_ip=${coreIp}&gnb_ip=${gnbIp}`;
                 window.location.href = url;
+            } else {
+                alert("Please select a file.");
             }
-        }
+        });
     </script>
 
 </html>
