@@ -25,6 +25,6 @@ class YamlToJsonFileController:
         with open(filepath, 'w') as file:
             yaml.dump(json_data, file, allow_unicode=True)
         
-        return f"JSON data has been successfully converted to {filename}"
+        return filename
 
 

@@ -1,0 +1,32 @@
+# base docker-compose file
+# Intended for docker-compose generation - please do not edit directly
+version: '3.9'
+
+services:
+  gnb:
+    container_name: srsran_gnb
+    image: srsran/gnb
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        OS_VERSION: 22.04
+    privileged: true
+    cap_add:
+      - SYS_NICE
+      - CAP_SYS_PTRACE
+    volumes:
+      - /dev/bus/usb/:/dev/bus/usb/
+      - gnb-storage:/tmp
+    configs:
+      - source: gnb_config
+        target: /gnb_config.yml
+    network_mode: "host"
+    command: gnb -c /gnb_config.yml amf --addr ${OPEN5GS_IP:-{{CORE_IP}}} --bind_addr ${GNB_IP:-{{IP}}}
+
+configs:
+  gnb_config:
+    file: {{fichero_de_configuracion}}
+
+volumes:
+  gnb-storage:

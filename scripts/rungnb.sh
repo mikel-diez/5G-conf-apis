@@ -1,36 +1,33 @@
 #!/bin/bash
 
-
-if [ "$#" -ne 2 ]; then
-    echo "Uso: $0 <ruta_al_archivo_config_yml> <ruta_al_docker_compose>"
+# Verificar que se recibieron cuatro argumentos.
+if [ "$#" -ne 4 ]; then
+    echo "Uso: $0 <ruta_al_archivo_config_yml> <ruta_al_docker_compose> <IP del GNB> <IP del Core>"
     exit 1
 fi
 
+CONFIG_PATH=$1
+DOCKER_COMPOSE_PATH=$2
+GNB_IP=$3
+CORE_IP=$4
 
-DOCKER_COMPOSE_FILE=$2
-
-
-if [ ! -f "$DOCKER_COMPOSE_FILE" ]; then
-    echo "Archivo $DOCKER_COMPOSE_FILE no encontrado."
-    exit 1
+# Detener y eliminar el contenedor si ya existe.
+CONTAINER_ID=$(docker ps -q -f name=srsran_gnb)
+if [ ! -z "$CONTAINER_ID" ]; then
+    echo "Deteniendo y eliminando el contenedor existente srsran_gnb..."
+    docker stop srsran_gnb
+    docker rm srsran_gnb
 fi
 
+# Reemplazar los valores predeterminados de las IPs en el comando dentro del docker-compose.
+sed -i "s|amf --addr \${OPEN5GS_IP:-[0-9\.]*}|amf --addr \${OPEN5GS_IP:-$CORE_IP}|" $DOCKER_COMPOSE_PATH
+sed -i "s|--bind_addr \${GNB_IP:-[0-9\.]*}|--bind_addr \${GNB_IP:-$GNB_IP}|" $DOCKER_COMPOSE_PATH
 
-NEW_YML_FILE=$1
+# Eliminar la ruta del archivo de configuración existente y añadir la nueva.
+sed -i "/gnb_config.yml:/!b;n;c\    file: $CONFIG_PATH" $DOCKER_COMPOSE_PATH
 
+# Navegar al directorio donde se encuentra docker-compose.yml y ejecutar docker compose.
+cd $(dirname $DOCKER_COMPOSE_PATH)
+docker compose -f $(basename $DOCKER_COMPOSE_PATH) up -d
 
-if [ ! -f "$NEW_YML_FILE" ]; then
-    echo "Archivo $NEW_YML_FILE no encontrado."
-    exit 1
-fi
-
-
-ESCAPED_NEW_YML_FILE=$(echo $NEW_YML_FILE | sed 's_/_\\/_g')
-
-# Actualizar la línea en docker-compose.yml
-sed -i "/gnb_config.yml:/!b;n;c\    file: ${ESCAPED_NEW_YML_FILE}" $DOCKER_COMPOSE_FILE
-
-echo "El archivo $DOCKER_COMPOSE_FILE ha sido actualizado."
-
-# Ejecutar Docker Compose
-docker compose -f $DOCKER_COMPOSE_FILE up -d --force-recreate
+echo "Docker Compose ha sido ejecutado."

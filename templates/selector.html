@@ -15,6 +15,22 @@
             height: 100vh;
             margin: 0;
         }
+        .header-message {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px;
+        padding-bottom: 100px;
+        text-align: center;
+        font-size: 1.2em;
+    }
+        .logo-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 10px;
+    }
         .container {
             width: 30%;
             margin: auto;
@@ -32,15 +48,39 @@
     </style>
 </head>
 <body>
+
+
+    <div class="header-message">
+        <a href="https://github.com/tu-organizacion/tu-repositorio" target="_blank" style="color: inherit; text-decoration: none;">
+            Made with <span style="color: red;">❤️</span> by Teleco Communications Dept.
+        </a>
+    </div>
+
     <div class="container">
         <h1>YAML File Picker</h1>
-        <select id="filePicker" onchange="window.location.href = '/config/' + this.value;">
+        <select id="filePicker" onchange="redirectToFile(this.value);">
+            <option value="" disabled {% if not current_yaml %}selected{% endif %}>Select your option</option>
             {% for file in yaml_files %}
                 <option value="{{ file }}" {% if file == current_yaml %}selected style="background-color: green;"{% endif %}>{{ file }}</option>
             {% endfor %}
         </select>
     </div>
-</body>
+    <div class="logo-container">
+        <img src="{{ url_for('static', path='logo.png') }}" alt="logo">
+    </div>
+    <div class="header-message">
+        Made with ❤️ by Teleco Communications Dept.
+    </div>
 
-    
+    <script>
+        function redirectToFile(filename) {
+            if(filename) {
+                const coreIp = "{{ core_ip }}"; 
+                const gnbIp = "{{ gnb_ip }}";
+                const url = `/config/${filename}?core_ip=${coreIp}&gnb_ip=${gnbIp}`;
+                window.location.href = url;
+            }
+        }
+    </script>
+
 </html>
